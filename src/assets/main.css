@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'Comic Sans';
+    src: url(fonts/COMIC.TTF) format('ttf');
+}
+
+html{
+    font-family: 'Comic Sans';
+}
