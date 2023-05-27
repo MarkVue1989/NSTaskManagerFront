@@ -1,13 +1,21 @@
 <template>
     <div class="container">
         <div class="row">
-            <div class="inline-container">
-                <input type="text" placeholder="Nueva tarea...">
-                <template v-if="optionsCheckBox" v-for="checkBox in optionsCheckBox" :key="checkBox.id">
-                    <label :for="checkBox.name">{{ checkBox.name }}</label>
-                    <input type="checkbox" :value="checkBox.id" v-model="selectedCheckBox">
-                </template>
-                <button type="button">Botón</button>
+            <div class="container_form">
+                <div class="inputText">
+                    <input type="text" placeholder="Nueva tarea..." v-model="inputNameTask">
+                </div>
+                <div class="inputCheckBox">
+                    <template v-if="optionsCheckBox" v-for="checkBox in optionsCheckBox" :key="checkBox.id">
+                        <div class="label_input">
+                            <label :for="checkBox.name">{{ checkBox.name }}</label>
+                            <input type="checkbox" :value="checkBox.id" v-model="selectedCheckBox">
+                        </div>
+                    </template>
+                </div>
+                <div class="button">
+                    <button type="button" @click="createTask">Botón</button>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -69,6 +77,7 @@ import { config } from '@/config/config'
 const optionsCheckBox = ref<Category[]>([])
 const selectedCheckBox = ref<number[]>([])
 const tasks = ref<Task[]>([]);
+const inputNameTask = ref<string>('')
 
 onMounted(() => {
     fetch(`${config.URL_BASE_BACKEND}/categories`, {
@@ -92,6 +101,33 @@ onMounted(() => {
         tasks.value = data
     })
 })
+
+const createTask = () => {
+    if (inputNameTask.value !== '') {
+        fetch(`${config.URL_BASE_BACKEND}/task`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(
+                {
+                    task: {
+                        name: inputNameTask.value
+                    },
+                    categories: selectedCheckBox.value
+                }
+            )
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error('Error en la llamada a la API');
+            }
+            return response.json();
+        }).then(({ data }) => {
+            tasks.value.push(data)
+        })
+    }
+}
 
 const deleteTask = (index: number) => {
     fetch(`${config.URL_BASE_BACKEND}/task/${tasks.value[index].id}`, {
@@ -156,20 +192,33 @@ th {
     background-color: grey;
 }
 
-.border_left {
-    border-left: 1px solid black;
+.container_form {
+    display: grid;
+    grid-template-columns: 50% 25% 25%;
+    grid-gap: 0px;
+    justify-content: center;
+    place-items: center stretch;
 }
 
-.light_grey {
-    background-color: rgba(128, 128, 128, 0.3);
+.inputText input {
+    width: 98%;
+    margin-bottom: 5px;
 }
 
-.white {
-    background-color: white;
+.inputCheckBox {
+    display: grid;
+    grid-template-columns: 30% 40% 30%;
+    grid-gap: 0px;
+    justify-content: center;
+    place-items: center center;
 }
 
-.red {
-    color: red;
+.button {
+    display: grid;
+    grid-template-columns: 40%;
+    grid-gap: 0px;
+    justify-content: center;
+    place-items: center stretch;
 }
 
 .tag_container {
@@ -190,6 +239,24 @@ th {
 
 .tag_container_grid-3 {
     grid-template-columns: repeat(3, 30%);
+}
+
+
+
+.border_left {
+    border-left: 1px solid black;
+}
+
+.light_grey {
+    background-color: rgba(128, 128, 128, 0.3);
+}
+
+.white {
+    background-color: white;
+}
+
+.red {
+    color: red;
 }
 
 .tag {

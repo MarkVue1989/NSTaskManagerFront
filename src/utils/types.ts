@@ -9,3 +9,8 @@ export type Task = {
     name: string,
     categories: Category[]
 }
+
+export type bodyCreateTask = {
+    task: string,
+    categories: number[]
+}
